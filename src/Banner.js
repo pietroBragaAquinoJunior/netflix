@@ -1,7 +1,26 @@
 import "./Banner.css"
-import React from 'react';
+import React, {useEffect, useState} from 'react';
+import axios from "./axios";
+import requests from "./Requests";
 
 function Banner(props) {
+
+    const [movie, setMovie] = useState([]);
+
+    useEffect(()=>{
+        async function fetchData(){
+            const request = await axios.get(requests.fetchNetflixOriginals);
+            setMovie(
+                request.data.results[
+                    Math.floor(Math.random() * request.data.results.length - 1)
+                ]
+            );
+            return request;
+        }
+        fetchData();
+    },[]);
+
+    console.log(movie);
 
     function truncate(string, n) {
         return string?.length > n ? string.substring(0,n-1) + '...' : string;
@@ -9,24 +28,19 @@ function Banner(props) {
 
     return (
         <header className={"banner"} style={
-            {   backgroundImage : `url(https://japanologia.files.wordpress.com/2015/04/black-hd-wallpaper.png)`,
+            {   backgroundImage : `url("https://image.tmdb.org/t/p/original/${movie?.backdrop_path}")`,
                 backgroundSize : "cover",
                 backgroundPosition : "center"
             }
         }>
             <div className={"banner__contents"}>
-                <h1 className={"banner__title"}>Movie Name</h1>
+                <h1 className={"banner__title"}>{movie?.title || movie?.name || movie?.original_name}</h1>
                 <div className={"banner__buttons"}>
                     <button className={"banner__button"}>Play</button>
                     <button className={"banner__button"}>My List</button>
                 </div>
                 <p className={"banner__description"}>
-                    {truncate(`
-                        This is a text description This is a text description
-                        This is a text description This is a text description This is a text description
-                        This is a text description This is a text description
-                        This is a text description
-                        `, 150)}
+                    {truncate(movie?.overview, 150)}
                 </p>
             </div>
             <div className={"banner__fadeBottom"}></div>
